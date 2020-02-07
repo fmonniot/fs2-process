@@ -8,3 +8,4 @@ jobs:
       - uses: actions/checkout@v1
       - uses: olafurpg/setup-scala@v2
       - run: sbt +test
+      - run: sbt scalafmtSbtCheck scalafmtSbtCheck
