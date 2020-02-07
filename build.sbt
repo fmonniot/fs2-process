@@ -23,5 +23,5 @@ lazy val root = (project in file("."))
       "com.codecommit"         %% "cats-effect-testing-scalatest" % "0.4.0" % Test
     ),
     addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.11.0").cross(CrossVersion.full)),
-    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
   )
