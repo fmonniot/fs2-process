@@ -1,7 +1,8 @@
 package eu.monniot.process
 
+import cats.effect.concurrent.Deferred
 import cats.implicits._
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import cats.effect.testing.scalatest.AsyncIOSpec
 import fs2.Stream
 import org.scalatest.matchers.should.Matchers
@@ -45,6 +46,28 @@ class ProcessSpec extends AsyncIOSpec with Matchers {
     }
 
     "will spawn a process a let us access its standard input" in {
+      Process.spawn[IO]("cat")
+          .flatMap(Resource.liftF(Deferred[IO, Unit]).tupleLeft)
+          .use { case (process, barrier) =>
+
+            val in = Stream("hello", " ", "me")
+              .through(fs2.text.utf8Encode)
+              .through(process.stdin)
+              .compile
+              .drain
+              .flatMap(_ => barrier.get)
+              .flatMap(_ => process.terminate())
+
+            val out = process.stdout
+              .through(fs2.text.utf8Decode)
+              .compile
+              .foldMonoid
+              .flatTap(_ => barrier.complete(()))
+              .asserting(_ shouldEqual "hello me")
+
+            (in, out).parMapN { case (_, assert) => assert }
+          }
+
       Process.spawn[IO]("cat").use { process =>
         val in = Stream("hello", " ", "me")
           .through(fs2.text.utf8Encode)
