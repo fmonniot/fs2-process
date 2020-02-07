@@ -1,6 +1,7 @@
 package eu.monniot.process
 
 import java.nio.ByteBuffer
+import java.nio.file.Path
 
 import cats.effect.concurrent.Deferred
 import cats.effect.{ConcurrentEffect, Effect, IO, Resource}
@@ -9,7 +10,6 @@ import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcess, NuProcessBuild
 import fs2.concurrent.{InspectableQueue, NoneTerminatedQueue, Queue}
 import fs2.{Chunk, Pipe, Stream}
 import scodec.bits.ByteVector
-
 import Compat.CollectionConverters._
 
 trait Process[F[_]] {
@@ -31,7 +31,10 @@ object Process {
   def spawn[F[_]](args: String*)(implicit F: ConcurrentEffect[F]): Resource[F, Process[F]] =
     spawn(args.toList)
 
-  def spawn[F[_]](args: List[String])(implicit F: ConcurrentEffect[F]): Resource[F, Process[F]] = {
+  def spawn[F[_]](args: List[String],
+                  cwd: Option[Path] = None,
+                  environment: Option[Map[String, String]] = None)(
+      implicit F: ConcurrentEffect[F]): Resource[F, Process[F]] = {
 
     val acquire: F[Process[F]] = for {
       processD <- Deferred[F, Process[F]]
@@ -62,8 +65,10 @@ object Process {
 
       }
       builder <- F.delay {
-        val b = new NuProcessBuilder(args.asJava)
+        val b = environment.fold(new NuProcessBuilder(args.asJava))(env =>
+          new NuProcessBuilder(args.asJava, env.asJava))
         b.setProcessListener(handler)
+        cwd.foreach(b.setCwd)
         b
       }
 
