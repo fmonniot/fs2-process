@@ -30,7 +30,7 @@ class ProcessSpec extends AsyncIOSpec with Matchers {
 
     "will spawn a process a let us access its standard error" in {
       val file = Paths
-        .get(System.getProperty("user.home", "/"), "/doesnt/exists")
+        .get(System.getProperty("user.dir", "/"), "/doesntexists")
         .normalize()
         .toAbsolutePath.toString
 
