@@ -10,7 +10,7 @@ import fs2.concurrent.{InspectableQueue, NoneTerminatedQueue, Queue}
 import fs2.{Chunk, Pipe, Stream}
 import scodec.bits.ByteVector
 
-import scala.jdk.CollectionConverters._
+import Compat.CollectionConverters._
 
 trait Process[F[_]] {
   def stdout: Stream[F, Byte]
