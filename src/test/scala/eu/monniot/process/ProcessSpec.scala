@@ -1,12 +1,13 @@
 package eu.monniot.process
 
-import java.nio.file.Paths
-
 import cats.implicits._
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
 import fs2.Stream
 import org.scalatest.matchers.should.Matchers
+
+import scala.concurrent.duration._
+
 
 class ProcessSpec extends AsyncIOSpec with Matchers {
 
@@ -29,18 +30,18 @@ class ProcessSpec extends AsyncIOSpec with Matchers {
     }
 
     "will spawn a process a let us access its standard error" in {
-      val file = Paths
-        .get(System.getProperty("user.dir", "/"), "/doesntexists")
-        .normalize()
-        .toAbsolutePath.toString
+      val file = "/doesnt/exists"
+      val expected = List(
+        s"ls: $file: No such file or directory\n",
+        s"ls: cannot access '$file': No such file or directory\n"
+      )
 
-      val expected = s"ls: $file: No such file or directory\n"
       Process.spawn[IO]("ls", file).use { process =>
         process.stderr
           .through(fs2.text.utf8Decode)
           .compile
           .foldMonoid
-          .asserting(_ shouldEqual expected)
+          .asserting(result => expected should contain(result))
       }
     }
 
@@ -51,6 +52,7 @@ class ProcessSpec extends AsyncIOSpec with Matchers {
           .through(process.stdin)
           .compile
           .drain
+          .flatMap(_ => IO.sleep(10.milliseconds))
           .flatMap(_ => process.terminate())
 
         val out = process.stdout
