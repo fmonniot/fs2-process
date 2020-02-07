@@ -41,22 +41,22 @@ object Process {
       handler = new NuAbstractProcessHandler {
 
         /**
-         * This method is invoked when you call the ''ProcessBuilder#start()'' method.
-         * Unlike the ''#onStart(NuProcess)'' method, this method is invoked
-         * before the process is spawned, and is guaranteed to be invoked before any
-         * other methods are called.
-         * The { @link NuProcess} that is starting. Note that the instance is not yet
-         * initialized, so it is not legal to call any of its methods, and doing so
-         * will result in undefined behavior. If you need to call any of the instance's
-         * methods, use ''#onStart(NuProcess)'' instead.
-         */
+          * This method is invoked when you call the ''ProcessBuilder#start()'' method.
+          * Unlike the ''#onStart(NuProcess)'' method, this method is invoked
+          * before the process is spawned, and is guaranteed to be invoked before any
+          * other methods are called.
+          * The { @link NuProcess} that is starting. Note that the instance is not yet
+          * initialized, so it is not legal to call any of its methods, and doing so
+          * will result in undefined behavior. If you need to call any of the instance's
+          * methods, use ''#onStart(NuProcess)'' instead.
+          */
         override def onPreStart(nuProcess: NuProcess): Unit = {
           val proc = processFromNu[F](nuProcess, stdout, stderr, stdin)
           nuProcess.setProcessHandler(proc)
           F.runAsync(processD.complete(proc)) {
-            case Left(_)   => IO.unit // todo something with error ?
-            case Right(()) => IO.unit
-          }
+              case Left(_)   => IO.unit // todo something with error ?
+              case Right(()) => IO.unit
+            }
             .unsafeRunSync()
         }
 
@@ -77,11 +77,11 @@ object Process {
   }
 
   def processFromNu[F[_]](
-                           proc: NuProcess,
-                           stdoutQ: NoneTerminatedQueue[F, ByteVector],
-                           stderrQ: NoneTerminatedQueue[F, ByteVector],
-                           stdinQ: InspectableQueue[F, ByteVector]
-                         )(implicit F: Effect[F]): NuAbstractProcessHandler with Process[F] =
+      proc: NuProcess,
+      stdoutQ: NoneTerminatedQueue[F, ByteVector],
+      stderrQ: NoneTerminatedQueue[F, ByteVector],
+      stdinQ: InspectableQueue[F, ByteVector]
+  )(implicit F: Effect[F]): NuAbstractProcessHandler with Process[F] =
     new NuAbstractProcessHandler with Process[F] {
 
       // Nu, unsafe logic
@@ -95,9 +95,9 @@ object Process {
         val queue = q.enqueue1(Some(bv)).flatTap(_ => F.delay(println("enqueued")))
 
         F.runAsync(queue) {
-          case Left(_)   => IO.unit // todo something with error ?
-          case Right(()) => IO.unit
-        }
+            case Left(_)   => IO.unit // todo something with error ?
+            case Right(()) => IO.unit
+          }
           .unsafeRunSync()
       }
 
@@ -128,12 +128,12 @@ object Process {
         // false means we have nothing else to write at this time
         var ret: Boolean = false
         F.runAsync(write) {
-          case Left(_) => IO.unit // todo something with error ?
-          case Right(next) =>
-            IO {
-              ret = next
-            }
-        }
+            case Left(_) => IO.unit // todo something with error ?
+            case Right(next) =>
+              IO {
+                ret = next
+              }
+          }
           .unsafeRunSync()
 
         ret
@@ -142,9 +142,9 @@ object Process {
       override def onExit(statusCode: Int): Unit = {
         println(s"process exited with $statusCode")
         F.runAsync(stdoutQ.enqueue1(None) *> stderrQ.enqueue1(None)) {
-          case Left(_)   => IO.unit // todo something with error ?
-          case Right(()) => IO.unit
-        }
+            case Left(_)   => IO.unit // todo something with error ?
+            case Right(()) => IO.unit
+          }
           .unsafeRunSync()
       }
 

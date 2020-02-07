@@ -8,7 +8,6 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.duration._
 
-
 class ProcessSpec extends AsyncIOSpec with Matchers {
 
   "Process#spawn" - {
@@ -67,4 +66,3 @@ class ProcessSpec extends AsyncIOSpec with Matchers {
   }
 
 }
-
