@@ -1,9 +1,21 @@
 lazy val root = (project in file("."))
   .settings(
-    organization := "eu.monniot",
     name := "fs2-process",
-    version := "0.1.0",
+
     scalaVersion := "2.13.1",
+    crossScalaVersions := List("2.13.1", "2.12.10"),
+
+    organization := "eu.monniot",
+    homepage := Some(url("https://github.com/fmonniot/fs2-process")),
+    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    developers := List(
+      Developer(
+        "fmonniot",
+        "François Monniot",
+        "francoismonniot@gmail.com",
+        url("https://francois.monniot.eu")
+      )
+    ),
 
     libraryDependencies ++= Seq(
       "co.fs2"         %% "fs2-core"                      % "2.2.2",
