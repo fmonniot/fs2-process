@@ -32,4 +32,4 @@ object Example extends IOApp {
 }
 ```
 
-More complex examples can be found in the `ProcessSpec` test suite.
+More complex examples can be found in the [`ProcessSpec`](https://github.com/fmonniot/fs2-process/blob/master/src/test/scala/eu/monniot/process/ProcessSpec.scala) test suite.
