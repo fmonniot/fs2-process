@@ -8,7 +8,7 @@ no production deployment have been attempted yet.
 ## Usage
 
 ```sbt
-libraryDependencies += "eu.monniot" % "fs2-process" % "<latest-version>"
+libraryDependencies += "eu.monniot" %% "fs2-process" % "<latest-version>"
 ```
 
 This library is currently published for scala 2.12 and 2.13. NuProcess being a Java library,
