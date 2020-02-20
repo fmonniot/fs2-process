@@ -97,26 +97,18 @@ object Process {
         // Ensure we consume the entire buffer in case it's not used.
         buffer.position(buffer.limit)
 
-        val queue = q.enqueue1(Some(bv)).flatTap(_ => F.delay(println("enqueued")))
-
-        F.runAsync(queue) {
+        F.runAsync(q.enqueue1(Some(bv))) {
             case Left(_)   => IO.unit // todo something with error ?
             case Right(()) => IO.unit
           }
           .unsafeRunSync()
       }
 
-      override def onStdout(buffer: ByteBuffer, closed: Boolean): Unit = {
-        println(s"Received a buffer from stdout (closed = $closed)")
-
+      override def onStdout(buffer: ByteBuffer, closed: Boolean): Unit =
         enqueueByteBuffer(buffer, stdoutQ)
-      }
 
-      override def onStderr(buffer: ByteBuffer, closed: Boolean): Unit = {
-        println(s"Received a buffer from stderr (closed = $closed)")
-
+      override def onStderr(buffer: ByteBuffer, closed: Boolean): Unit =
         enqueueByteBuffer(buffer, stderrQ)
-      }
 
       override def onStdinReady(buffer: ByteBuffer): Boolean = {
         val write = stdinQ.dequeue1
@@ -127,7 +119,6 @@ object Process {
             }
           }
           .flatMap(_ => stdinQ.getSize)
-          .flatTap(size => F.delay(println(s"Buffer write done, q size = $size")))
           .map(_ > 0)
 
         // false means we have nothing else to write at this time
@@ -144,14 +135,12 @@ object Process {
         ret
       }
 
-      override def onExit(statusCode: Int): Unit = {
-        println(s"process exited with $statusCode")
+      override def onExit(statusCode: Int): Unit =
         F.runAsync(stdoutQ.enqueue1(None) *> stderrQ.enqueue1(None)) {
             case Left(_)   => IO.unit // todo something with error ?
             case Right(()) => IO.unit
           }
           .unsafeRunSync()
-      }
 
       // Nu, wrapped, safe logic
 
@@ -175,9 +164,8 @@ object Process {
           .through(stdinQ.enqueue)
           .evalMap { _ =>
             // TODO Trigger wantWrite only if queue was empty before this element
-            F.delay(println("enqueued something, trigger want write")) *> F.delay(proc.wantWrite())
+            F.delay(proc.wantWrite())
           }
-          .onFinalize(F.delay(println("stdin queue finalized")))
     }
 
 }
