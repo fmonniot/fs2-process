@@ -1,9 +1,8 @@
 package eu.monniot.process
 
-import cats.effect.concurrent.Deferred
-import cats.implicits._
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
+import cats.implicits._
 import fs2.Stream
 import org.scalatest.matchers.should.Matchers
 
@@ -17,6 +16,12 @@ class ProcessSpec extends AsyncIOSpec with Matchers {
         process.pid
           .asserting(_ shouldBe >(0))
       }
+    }
+
+    "will spawn a process and let us access its status code" in {
+      Process.spawn[IO]("sh", "-c", "exit 2")
+        .use(process => process.statusCode)
+        .asserting(_ shouldEqual 2)
     }
 
     "will spawn a process a let us access its standard output" in {
