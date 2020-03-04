@@ -31,6 +31,7 @@ class ProcessSpec extends AsyncIOSpec with Matchers {
 
     "will spawn a process a let us access its standard error" in {
       val file = "/doesnt/exists"
+      // Depending on the OS the error message is a bit different
       val expected = List(
         s"ls: $file: No such file or directory\n",
         s"ls: cannot access '$file': No such file or directory\n"
@@ -47,44 +48,45 @@ class ProcessSpec extends AsyncIOSpec with Matchers {
 
     "will spawn a process a let us access its standard input" in {
       Process.spawn[IO]("cat")
-          .flatMap(Resource.liftF(Deferred[IO, Unit]).tupleLeft)
-          .use { case (process, barrier) =>
+        .use { process =>
 
-            val in = Stream("hello", " ", "me")
-              .through(fs2.text.utf8Encode)
-              .through(process.stdin)
-              .compile
-              .drain
-              .flatMap(_ => barrier.get)
-              .flatMap(_ => process.terminate())
+          val in = (Stream[IO, String]("hello", " ", "me") ++ Stream.sleep_(1.milli))
+            .through(fs2.text.utf8Encode)
+            .through(process.stdin)
+            .onFinalize(IO(println("stdin done")))
+            .compile
+            .drain
 
-            val out = process.stdout
-              .through(fs2.text.utf8Decode)
-              .compile
-              .foldMonoid
-              .flatTap(_ => barrier.complete(()))
-              .asserting(_ shouldEqual "hello me")
+          val out = process.stdout
+            .through(fs2.text.utf8Decode)
+            .onFinalize(IO(println("stdout done")))
+            .compile
+            .foldMonoid
+            .asserting(_ shouldEqual "hello me")
 
-            (in, out).parMapN { case (_, assert) => assert }
-          }
+          (in, out).parMapN { case (_, assert) => assert }
+        }
+    }
 
-      Process.spawn[IO]("cat").use { process =>
-        val in = Stream("hello", " ", "me")
-          .through(fs2.text.utf8Encode)
-          .through(process.stdin)
-          .compile
-          .drain
-          .flatMap(_ => IO.sleep(10.milliseconds))
-          .flatMap(_ => process.terminate())
+    "will close the stdin when the stream complete" in {
+      Process.spawn[IO]("cat")
+        .use { process =>
 
-        val out = process.stdout
-          .through(fs2.text.utf8Decode)
-          .compile
-          .foldMonoid
-          .asserting(_ shouldEqual "hello me")
+          val bytes =
+            Stream("hello", " ", "me").through(fs2.text.utf8Encode) ++
+              Stream(", a second", " time").through(fs2.text.utf8Encode) ++
+              Stream.sleep_(1.milli)
 
-        (in, out).parMapN { case (_, assert) => assert }
-      }
+          val in = bytes.through(process.stdin).compile.drain
+
+          val out = process.stdout
+            .through(fs2.text.utf8Decode)
+            .compile
+            .foldMonoid
+            .asserting(_ shouldEqual "hello me, a second time")
+
+          (in, out).parMapN { case (_, assert) => assert }
+        }
     }
   }
 

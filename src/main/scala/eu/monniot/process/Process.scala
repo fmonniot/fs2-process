@@ -166,6 +166,7 @@ object Process {
             // TODO Trigger wantWrite only if queue was empty before this element
             F.delay(proc.wantWrite())
           }
+          .onFinalize(F.delay(proc.closeStdin(false)))
     }
 
 }
