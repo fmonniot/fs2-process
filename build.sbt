@@ -17,7 +17,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "co.fs2"                 %% "fs2-core"                      % "2.2.2",
       "com.zaxxer"             % "nuprocess"                      % "2.0.2",
-      "org.scala-lang.modules" %% "scala-collection-compat"       % "2.1.3",
+      "org.scala-lang.modules" %% "scala-collection-compat"       % "2.5.0",
       "org.scalatest"          %% "scalatest"                     % "3.1.0" % Test,
       "org.scalacheck"         %% "scalacheck"                    % "1.14.3" % Test,
       "com.codecommit"         %% "cats-effect-testing-scalatest" % "0.4.0" % Test
