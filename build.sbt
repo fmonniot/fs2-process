@@ -19,7 +19,7 @@ lazy val root = (project in file("."))
       "com.zaxxer"             % "nuprocess"                      % "2.0.1",
       "org.scala-lang.modules" %% "scala-collection-compat"       % "2.5.0",
       "org.scalatest"          %% "scalatest"                     % "3.2.9" % Test,
-      "org.typelevel"         %% "cats-effect-testing-scalatest" % "1.2.0" % Test
+      "org.typelevel"          %% "cats-effect-testing-scalatest" % "1.2.0" % Test
     ),
     addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.13.0").cross(CrossVersion.full)),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
