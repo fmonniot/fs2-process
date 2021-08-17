@@ -2,7 +2,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "fs2-process",
     scalaVersion := "2.13.6",
-    crossScalaVersions := List("2.13.6", "2.12.10"),
+    crossScalaVersions := List("2.13.6", "2.12.14"),
     organization := "eu.monniot",
     homepage := Some(url("https://github.com/fmonniot/fs2-process")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
