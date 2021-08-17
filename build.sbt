@@ -6,6 +6,7 @@ lazy val root = (project in file("."))
     organization := "eu.monniot",
     homepage := Some(url("https://github.com/fmonniot/fs2-process")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    versionScheme := Some("semver-spec"),
     developers := List(
       Developer(
         "fmonniot",
