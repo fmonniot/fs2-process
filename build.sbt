@@ -1,8 +1,8 @@
 lazy val root = (project in file("."))
   .settings(
     name := "fs2-process",
-    scalaVersion := "2.13.1",
-    crossScalaVersions := List("2.13.1", "2.12.10"),
+    scalaVersion := "2.13.6",
+    crossScalaVersions := List("2.13.6", "2.12.10"),
     organization := "eu.monniot",
     homepage := Some(url("https://github.com/fmonniot/fs2-process")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -22,6 +22,6 @@ lazy val root = (project in file("."))
       "org.scalacheck"         %% "scalacheck"                    % "1.14.3" % Test,
       "com.codecommit"         %% "cats-effect-testing-scalatest" % "0.4.0" % Test
     ),
-    addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.11.0").cross(CrossVersion.full)),
+    addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.13.0").cross(CrossVersion.full)),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
   )
