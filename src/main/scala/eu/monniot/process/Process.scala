@@ -111,7 +111,7 @@ object Process {
         // Ensure we consume the entire buffer in case it's not used.
         buffer.position(buffer.limit)
 
-        dispatcher.unsafeRunAndForget(q.offer(Some(bv)))
+        dispatcher.unsafeRunSync(q.offer(Some(bv)))
       }
 
       override def onStdout(buffer: ByteBuffer, closed: Boolean): Unit =
